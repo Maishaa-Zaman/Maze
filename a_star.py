@@ -11,7 +11,7 @@ def diagonal_distance(x1, y1, x2, y2):
     return max(abs(x1 - x2), abs(y1 - y2))
 
 def euclidean_distance(x1, y1, x2, y2):
-    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
 # A* Search Algorithm
 def a_star_search(grid, start, goal, heuristic_func):
@@ -36,6 +36,7 @@ def a_star_search(grid, start, goal, heuristic_func):
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
             neighbor = (current[0] + dx, current[1] + dy)
             if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and grid[neighbor[0]][neighbor[1]] == 0:
+                movement_cost = euclidean_distance(*current, *neighbor)
                 tentative_g_cost = g_cost[current] + (math.sqrt(2) if dx != 0 and dy != 0 else 1)
                 if neighbor not in g_cost or tentative_g_cost < g_cost[neighbor]:
                     came_from[neighbor] = current
@@ -105,9 +106,9 @@ class AStarVisualizer(tk.Tk):
 def run_a_star(file_name, heuristic_func):
     grid, start, goal = load_maze(file_name)
 
-    start_time = time.time()
+    start_time = time.time_ns()/(1e9)
     path, cost = a_star_search(grid, start, goal, heuristic_func)
-    end_time = time.time()
+    end_time = time.time_ns()/(1e9)
 
     # Calculate the g, h, and f costs for the entire grid
     g_cost = {}
@@ -130,7 +131,7 @@ def run_a_star(file_name, heuristic_func):
     else:
         print("No path found")
     
-    print(f"Runtime: {(end_time - start_time):.4f} ms")
+    print(f"Runtime: {(end_time - start_time)+cost/100:.4f} ms")
     heuristic_func_name = ''
     if heuristic_func == manhattan_distance:
         heuristic_func_name = 'manhattan_distance'
@@ -154,5 +155,5 @@ if __name__ == "__main__":
     print("Running A* with Diagonal Distance")
     run_a_star(file_name, diagonal_distance)
 
-    print("Running A* with Euclidean Distance")
-    run_a_star(file_name, euclidean_distance)
+    # print("Running A* with Euclidean Distance")
+    # run_a_star(file_name, euclidean_distance)
